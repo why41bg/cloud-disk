@@ -34,8 +34,10 @@ public class CloudDiskController {
         ObjectUploadRequest uploadRequest = ObjectUploadRequest.builder().bucket(bucket).obj(obj).content(file).build();
         S3Object s3o;
         if (file.getSize() > 5L * 1024 * 1024 * 1024) {
+            log.info("File size {} is greater than 5GB, use multipart upload", file.getSize());
             s3o = storageService.multipartUploadObject(uploadRequest);
         } else {
+            log.info("File size {} is less than 5GB, use simple upload", file.getSize());
             s3o = storageService.simpleUploadObject(uploadRequest);
         }
         return ResultResponse.success("上传文件成功", s3o);

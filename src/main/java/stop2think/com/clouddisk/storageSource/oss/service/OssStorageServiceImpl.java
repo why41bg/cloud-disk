@@ -142,6 +142,7 @@ public class OssStorageServiceImpl implements StorageService{
         CompleteMultipartUploadRequest completeMultipartUploadRequest = new CompleteMultipartUploadRequest(bucket, obj, multipartUploadId, partETags);
         CompleteMultipartUploadResult completeMultipartUploadResult = ossClient.completeMultipartUpload(completeMultipartUploadRequest);
         S3Object s3o = new S3Object();
+        s3o.setStorageSource(StorageSourceEnum.ALIYUN);
         s3o.setBucket(completeMultipartUploadResult.getBucketName());
         s3o.setPath(completeMultipartUploadResult.getKey());
         s3o.setETag(completeMultipartUploadResult.getETag());
