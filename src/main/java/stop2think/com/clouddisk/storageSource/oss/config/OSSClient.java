@@ -22,17 +22,31 @@ public class OSSClient {
     private final OSS ossClientProxy;
 
 
-    public PutObjectResult upload(PutObjectRequest request) {
+    public PutObjectResult putObject(PutObjectRequest request) {
         return this.ossClientProxy.putObject(request);
     }
 
 
-    public OSSObject download(String bucket, String obj) {
+    public OSSObject getObject(String bucket, String obj) {
         return this.ossClientProxy.getObject(bucket, obj);
     }
 
-    public ObjectListing list(ListObjectsRequest request) {
+    public ObjectListing listObjects(ListObjectsRequest request) {
         return this.ossClientProxy.listObjects(request);
+    }
+
+    public UploadPartResult uploadPart(UploadPartRequest request) {
+        return this.ossClientProxy.uploadPart(request);
+    }
+
+
+    public InitiateMultipartUploadResult initiateMultipartUpload(InitiateMultipartUploadRequest request) {
+        return this.ossClientProxy.initiateMultipartUpload(request);
+    }
+
+
+    public CompleteMultipartUploadResult completeMultipartUpload(CompleteMultipartUploadRequest request) {
+        return this.ossClientProxy.completeMultipartUpload(request);
     }
 
 

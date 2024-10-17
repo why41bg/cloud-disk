@@ -21,7 +21,7 @@ public interface SimpleDownload {
      * 从默认的 bucket 简单下载文件
      *
      * @param obj 存储空间文件名
-     * @return 下载文件元数据
+     * @return    下载文件元数据
      */
     S3Object simpleDownloadObject(String obj) throws IOException;
 }

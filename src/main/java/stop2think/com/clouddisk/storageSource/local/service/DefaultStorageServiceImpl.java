@@ -5,7 +5,8 @@ import org.apache.commons.io.FileUtils;
 import stop2think.com.clouddisk.core.config.CloudDiskProperties;
 import stop2think.com.clouddisk.core.model.S3Object;
 import stop2think.com.clouddisk.core.model.enums.StorageSourceEnum;
-import stop2think.com.clouddisk.core.storage.SimpleStorageService;
+import stop2think.com.clouddisk.core.model.request.ObjectUploadRequest;
+import stop2think.com.clouddisk.core.storage.StorageService;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -20,7 +21,7 @@ import java.util.List;
  * @author weihongyu
  */
 @Slf4j
-public class DefaultStorageServiceImpl implements SimpleStorageService {
+public class DefaultStorageServiceImpl implements StorageService {
 
     private final CloudDiskProperties cloudDiskProperties = CloudDiskProperties.getInstance();
 
@@ -50,25 +51,20 @@ public class DefaultStorageServiceImpl implements SimpleStorageService {
 
 
     @Override
-    public S3Object simpleUploadObject(String bucket, String obj, InputStream inputStream) throws IOException {
-        return this.simpleUploadObject(obj, inputStream);
-    }
-
-
-    @Override
-    public S3Object simpleUploadObject(String obj, InputStream inputStream) throws IOException {
+    public S3Object simpleUploadObject(ObjectUploadRequest request) throws IOException {
+        String obj = request.getObj();
+        InputStream content = request.getContent().getInputStream();
         Path dest = Paths.get(localStoragePath, obj);
         Files.createDirectories(dest.getParent());
         File destFile = dest.toFile();
-        OutputStream outputStream = new FileOutputStream(destFile);
-        byte[] buffer = new byte[1024];
-        int bytesRead;
-        while ((bytesRead = inputStream.read(buffer)) != -1) {
-            outputStream.write(buffer, 0, bytesRead);
+        try (OutputStream outputStream = new FileOutputStream(destFile)) {
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = content.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
         }
-        outputStream.close();
         S3Object s3o = new S3Object();
-        s3o.setBucket(StorageSourceEnum.DEFAULT.getStorageSource());
         s3o.setKey(destFile.getName());
         s3o.setLastModified(destFile.lastModified());
         s3o.setSize(destFile.length());
@@ -79,26 +75,28 @@ public class DefaultStorageServiceImpl implements SimpleStorageService {
 
 
     @Override
-    public List<S3Object> listObjects(String bucket, String dirPath, Integer maxKeys) {
-        return this.listObjects(dirPath, maxKeys);
+    public List<S3Object> listObjects(String bucket, String dir, Integer maxKeys) {
+        return this.listObjects(dir, maxKeys);
     }
 
 
     @Override
-    public List<S3Object> listObjects(String dirPath, Integer maxKeys) {
-        Path dir = Paths.get(localStoragePath, dirPath);
-        log.info("List objects in {}", dir);
-        Collection<File> files = FileUtils.listFiles(dir.toFile(), null, true);
+    public List<S3Object> listObjects(String dir, Integer maxKeys) {
+        Collection<File> files = FileUtils.listFiles(Paths.get(dir).toFile(), null, true);
         return files.stream().map(file -> {
             S3Object s3o = new S3Object();
             s3o.setStorageSource(StorageSourceEnum.DEFAULT);
             s3o.setSize(file.length());
             s3o.setKey(file.getName());
             s3o.setLastModified(file.lastModified());
-            s3o.setPath(Paths.get(dirPath, file.getName()).toString());
+            s3o.setPath(Paths.get(dir, file.getName()).toString());
             s3o.setLocalFile(file);
             return s3o;
         }).toList();
     }
 
+    @Override
+    public S3Object multipartUploadObject(ObjectUploadRequest request) throws IOException {
+        return null;
+    }
 }

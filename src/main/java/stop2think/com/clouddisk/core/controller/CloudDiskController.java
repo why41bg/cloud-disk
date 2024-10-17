@@ -7,8 +7,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import stop2think.com.clouddisk.core.model.S3Object;
+import stop2think.com.clouddisk.core.model.request.ObjectUploadRequest;
 import stop2think.com.clouddisk.core.model.response.ResultResponse;
-import stop2think.com.clouddisk.core.storage.SimpleStorageService;
+import stop2think.com.clouddisk.core.storage.StorageService;
 import stop2think.com.clouddisk.storageSource.StorageServiceFactory;
 
 import java.io.*;
@@ -24,18 +25,20 @@ import java.util.Objects;
 public class CloudDiskController {
 
     @PostMapping("/upload/{storageSource}")
-    public ResultResponse<String> simpleUploadFile(@RequestParam MultipartFile file,
-                                                   @RequestParam String bucket,
-                                                   @RequestParam String obj,
-                                                   @PathVariable String storageSource)
+    public ResultResponse<S3Object> uploadFile(@RequestParam MultipartFile file,
+                                               @RequestParam String bucket,
+                                               @RequestParam String obj,
+                                               @PathVariable String storageSource)
             throws IOException {
-        SimpleStorageService storageService = StorageServiceFactory.getSimpleStorageService(storageSource);
-        if (StringUtils.isNotEmpty(bucket)) {
-            storageService.simpleUploadObject(bucket, obj, file.getInputStream());
+        StorageService storageService = StorageServiceFactory.getSimpleStorageService(storageSource);
+        ObjectUploadRequest uploadRequest = ObjectUploadRequest.builder().bucket(bucket).obj(obj).content(file).build();
+        S3Object s3o;
+        if (file.getSize() > 5L * 1024 * 1024 * 1024) {
+            s3o = storageService.multipartUploadObject(uploadRequest);
         } else {
-            storageService.simpleUploadObject(obj, file.getInputStream());
+            s3o = storageService.simpleUploadObject(uploadRequest);
         }
-        return ResultResponse.success("上传文件成功", obj);
+        return ResultResponse.success("上传文件成功", s3o);
     }
 
 
@@ -45,7 +48,7 @@ public class CloudDiskController {
                                    @PathVariable String storageSource,
                                    HttpServletResponse response)
             throws IOException {
-        SimpleStorageService storageService = StorageServiceFactory.getSimpleStorageService(storageSource);
+        StorageService storageService = StorageServiceFactory.getSimpleStorageService(storageSource);
         S3Object s3o;
         if (StringUtils.isEmpty(bucket)) {
             s3o = storageService.simpleDownloadObject(obj);
@@ -80,7 +83,7 @@ public class CloudDiskController {
                                                       @RequestParam Integer maxKeys,
                                                       @PathVariable String storageSource)
     throws IOException{
-        SimpleStorageService storageService = StorageServiceFactory.getSimpleStorageService(storageSource);
+        StorageService storageService = StorageServiceFactory.getSimpleStorageService(storageSource);
         List<S3Object> s3Objects;
         if (StringUtils.isEmpty(bucket)) {
             s3Objects = storageService.listObjects(obj, maxKeys);

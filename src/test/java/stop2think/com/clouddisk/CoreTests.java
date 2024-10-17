@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import stop2think.com.clouddisk.core.config.CloudDiskProperties;
 import stop2think.com.clouddisk.storageSource.local.service.DefaultStorageServiceImpl;
-import stop2think.com.clouddisk.core.storage.SimpleStorageService;
+import stop2think.com.clouddisk.core.storage.StorageService;
 import stop2think.com.clouddisk.storageSource.StorageServiceFactory;
 import stop2think.com.clouddisk.storageSource.oss.service.OssStorageServiceImpl;
 
@@ -20,10 +20,10 @@ public class CoreTests {
 
     @Test
     void StorageServiceFactoryTest() {
-        SimpleStorageService ossStorageService = StorageServiceFactory.getSimpleStorageService("aliyun");
+        StorageService ossStorageService = StorageServiceFactory.getSimpleStorageService("aliyun");
         assert Objects.requireNonNull(ossStorageService).getClass() == OssStorageServiceImpl.class;
 
-        SimpleStorageService defaultStorageService = StorageServiceFactory.getSimpleStorageService("default");
+        StorageService defaultStorageService = StorageServiceFactory.getSimpleStorageService("default");
         assert Objects.requireNonNull(defaultStorageService).getClass() == DefaultStorageServiceImpl.class;
     }
 

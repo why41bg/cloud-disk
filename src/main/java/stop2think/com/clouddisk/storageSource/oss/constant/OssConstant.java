@@ -14,4 +14,6 @@ public class OssConstant {
     public static final String ACCESS_ID_KEY = "oss.access-key-id";
 
     public static final String ACCESS_SECRET_KEY = "oss.access-key-secret";
+
+    public static final Long PART_SIZE = 1024 * 1024L;
 }

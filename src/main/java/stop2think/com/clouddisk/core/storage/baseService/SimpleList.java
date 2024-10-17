@@ -13,18 +13,19 @@ public interface SimpleList {
     /**
      * 列出指定 bucket 下, 指定目录下的文件
      *
-     * @param bucket 存储空间唯一标识
-     * @param dirPath 目录路径
+     * @param bucket  存储空间唯一标识
+     * @param dir     目录路径
      * @param maxKeys 最大返回数量
      * @return 指定目录路径下的文件列表
      */
-    List<S3Object> listObjects(String bucket, String dirPath, Integer maxKeys) throws IOException;
+    List<S3Object> listObjects(String bucket, String dir, Integer maxKeys) throws IOException;
 
     /**
      * 列出默认 bucket 下, 指定目录下的文件
-     * @param dirPath 目录路径
+     *
+     * @param dir     目录路径
      * @param maxKeys 最大返回数量
-     * @return 默认 bucket 下指定目录路径下的文件列表
+     * @return        默认 bucket 下指定目录路径下的文件列表
      */
-    List<S3Object> listObjects(String dirPath, Integer maxKeys) throws IOException;
+    List<S3Object> listObjects(String dir, Integer maxKeys) throws IOException;
 }
